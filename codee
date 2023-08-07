@@ -1,0 +1,31 @@
+import nltk
+from nltk.corpus import words
+from nltk.metrics.distance import edit_distance
+from heapq import nlargest
+
+nltk.download('words')
+nltk.download('punkt')
+
+# Load the list of English words from NLTK
+english_words = set(words.words())
+
+# Function to find the nearest correct word for a given misspelled word
+def suggest_correction(word, num_suggestions=3):
+    word = word.lower()
+    if word in english_words:
+        return word
+    
+    suggestions = []
+    for w in english_words:
+        if edit_distance(word, w) <= 2:
+            suggestions.append((w, edit_distance(word, w)))
+    
+    best_suggestions = nlargest(num_suggestions, suggestions, key=lambda x: x[1])
+    return [suggestion[0] for suggestion in best_suggestions]
+
+# Test the correction function
+misspelled_word = "appl"
+corrections = suggest_correction(misspelled_word)
+
+print(f"Misspelled word: {misspelled_word}")
+print(f"Possible corrections: {corrections}")
